@@ -13,10 +13,19 @@ func main() {
 		})
 	})
 	r.POST("/parse-stats", func(c *gin.Context) {
-		ByteBody, _ := ioutil.ReadAll(c.Request.Body)
-		demoInfoFromDem, _ := GetMatchInfo(ByteBody)
-		demoInfoFromDemo := demoInfoFromDem
-		c.JSON(200, demoInfoFromDemo.GetScoreboard())
+		var bodyBytes []byte
+		if c.Request.Body != nil {
+			bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
+		} else {
+			c.AbortWithStatus(400)
+		}
+		var demoInfoFromDemo, err = GetMatchInfo(bodyBytes)
+		if err != nil {
+			c.JSON(500, err)
+			return
+		}
+		scoreboard := demoInfoFromDemo.GetScoreboard()
+		c.JSON(200, scoreboard)
 	})
 	err := r.Run()
 	if err != nil {

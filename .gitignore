@@ -9,7 +9,7 @@
 *.dll
 *.so
 *.dylib
-
+*.swp
 # Test binary, built with `go test -c`
 *.test
 
@@ -19,6 +19,7 @@
 # vendor/
 
 .idea
+*.im
 ### Go Patch ###
 /vendor/
 /Godeps/

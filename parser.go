@@ -32,6 +32,7 @@ func NewDemoParser() DemoParser {
 			Round:        0,
 			RoundOngoing: false,
 		},
+
 	}
 }
 
@@ -45,8 +46,12 @@ type parsingState struct {
 
 // Parse starts the parsing process and fills the infostruct with values
 // gathered from the demo file
-func (p *DemoParser) Parse(demoStream []byte) error {
+func (p *DemoParser) Parse(demoStream []byte, m *InfoStruct) error {
 
+	matchID := ""
+	m.MatchID = matchID
+	// Register handlers for events we care about
+	p.Match = m
 	var err error
 	var reader = bytes.NewReader(demoStream)
 	p.parser = demoinfocs.NewParser(reader)
@@ -63,12 +68,12 @@ func (p *DemoParser) Parse(demoStream []byte) error {
 	p.parser.RegisterEventHandler(p.handlerBombExplode)
 	p.parser.RegisterEventHandler(p.handlerScoreUpdated)
 	p.parser.RegisterEventHandler(p.handlerWeaponFire)
+	log.Debug("registered event handlers")
 	// p.RegisterEventHandler(handlerChatMessage)
-
+	err = p.setGeneral()
 	// Parse the demo returning errors
 	err = p.parser.ParseToEnd()
 	// Parse header and set general values
-	err = p.setGeneral()
 
 	if err != nil {
 		return err
@@ -92,7 +97,12 @@ func (p *DemoParser) ParseFromDisk(path string, m *InfoStruct) error {
 		return err
 	}
 
-	defer f.Close()
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+
+		}
+	}(f)
 
 	p.parser = demoinfocs.NewParser(f)
 	defer p.parser.Close()
@@ -587,10 +597,10 @@ func (p *DemoParser) handlerRoundEnd(e events.RoundEnd) {
 	var winners []*common.Player
 
 	if e.Winner == common.TeamCounterTerrorists {
-		log.Info("CounterTerrorists win")
+		log.Debug("CounterTerrorists win")
 		// If the CTs won due to defuse, give defuser 30 shares.
 		if e.Reason == events.RoundEndReasonBombDefused {
-			log.Info("Bomb defusal")
+			log.Debug("Bomb defusal")
 			var defuser uint64 = p.Match.Rounds[rd_idx].BombDefuser
 			playerNum, err := p.Match.Players.PlayerNumByID(defuser)
 			if err != nil {
@@ -604,10 +614,10 @@ func (p *DemoParser) handlerRoundEnd(e events.RoundEnd) {
 		winners = p.parser.GameState().TeamCounterTerrorists().Members()
 
 	} else {
-		log.Info("Terrorists win")
+		log.Debug("Terrorists win")
 		// If the Ts won due to bomb, give planter 30 shares.
 		if e.Reason == events.RoundEndReasonTargetBombed {
-			log.Info("Bomb explosion")
+			log.Debug("Bomb explosion")
 			var planter uint64 = p.Match.Rounds[rd_idx].BombPlanter
 			playerNum, err := p.Match.Players.PlayerNumByID(planter)
 			if err != nil {
@@ -626,7 +636,7 @@ func (p *DemoParser) handlerRoundEnd(e events.RoundEnd) {
 		//log.Info("Steamid ", pl.SteamID64)
 	}
 
-	log.Info("Win reason: ", e.Reason, " total damage: ", winning_team_damage)
+	log.Debug("Win reason: ", e.Reason, " total damage: ", winning_team_damage)
 	p.Match.Rounds[rd_idx].WinReason = e.Reason
 
 	// Split the rest of the shares by damage.
@@ -642,7 +652,7 @@ func (p *DemoParser) handlerRoundEnd(e events.RoundEnd) {
 		shares_left -= rws
 		p.Match.Players.Players[playerNum].Rws += rws
 
-		log.Info(p.Match.Players.Players[playerNum].Name, " has ", rws, " this round and ", p.Match.Players.Players[playerNum].Rws, " RWS this game.")
+		log.Debugln(p.Match.Players.Players[playerNum].Name, " has ", rws, " this round and ", p.Match.Players.Players[playerNum].Rws, " RWS this game.")
 	}
 
 	// Reset all round damage
