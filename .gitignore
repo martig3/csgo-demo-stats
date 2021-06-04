@@ -19,7 +19,7 @@
 # vendor/
 
 .idea
-*.im
+*.iml
 ### Go Patch ###
 /vendor/
 /Godeps/
