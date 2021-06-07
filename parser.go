@@ -4,9 +4,9 @@ package main
 
 import (
 	"bytes"
-	"math"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -32,7 +32,6 @@ func NewDemoParser() DemoParser {
 			Round:        0,
 			RoundOngoing: false,
 		},
-
 	}
 }
 
@@ -145,7 +144,15 @@ func (p *DemoParser) playersBySteamID(steamID uint64) *common.Player {
 }
 
 func (p *DemoParser) calculate() {
-
+	teamAPlayers := make([]uint64, 4)
+	teamBPlayers := make([]uint64, 4)
+	for _, player := range p.Match.Players.Players {
+		if player.Team == "A" {
+			teamAPlayers = append(teamAPlayers, player.Steamid64)
+		} else {
+			teamBPlayers = append(teamBPlayers, player.Steamid64)
+		}
+	}
 	for k, player := range p.Match.Players.Players {
 
 		// Set Kills, Deaths, Assists, MVPs
@@ -154,13 +161,20 @@ func (p *DemoParser) calculate() {
 		p.Match.Players.Players[k].Assists = p.playersBySteamID(player.Steamid64).Assists()
 		p.Match.Players.Players[k].MVPs = p.playersBySteamID(player.Steamid64).MVPs()
 
-		var playeradr int = 0
-
-		for _, v := range allWeapons() {
-			playeradr += p.Match.Players.Players[k].WeaponStats.getDamage(v)
+		var playerAdr = 0
+		for k, v := range p.Match.Players.Players[k].PlayerDamages.Damages {
+			if player.Team == "A" {
+				if itemExists(teamBPlayers, k) {
+					playerAdr += v
+				}
+			} else {
+				if itemExists(teamAPlayers, k) {
+					playerAdr += v
+				}
+			}
 		}
-
-		p.Match.Players.Players[k].Adr = playeradr / len(p.Match.Rounds)
+		roundTotal := len(p.Match.Rounds) - 1
+		p.Match.Players.Players[k].Adr = float64(playerAdr) / float64(roundTotal)
 
 		// Calculate player's K/D
 		if p.Match.Players.Players[k].Deaths != 0 {
@@ -208,25 +222,26 @@ func (p *DemoParser) calculate() {
 		var survivalRating float64
 		var multiRating float64
 
-		const AVERAGE_KPR float64 = 0.679 // average kills per round
-		const AVERAGE_SPR float64 = 0.317 // average survived rounds per round
-		const AVERAGE_RMK = 1.277         // average value calculated from rounds with multiple kills
+		const AverageKpr float64 = 0.679 // average kills per round
+		const AverageSpr float64 = 0.317 // average survived rounds per round
+		const AverageRmk = 1.277         // average value calculated from rounds with multiple kills
 		// Calculate HLTV rating
-		var r int = len(p.Match.Rounds)
 
 		// Kills/Rounds/AverageKPR
-		killRating = float64(p.Match.Players.Players[k].Kills/r) / AVERAGE_KPR
+		kpr := p.Match.Players.Players[k].Kills / roundTotal
+		killRating = float64(kpr) / AverageKpr
 		// (Rounds-Deaths)/Rounds/AverageSPR
-		survivalRating = float64(r-p.Match.Players.Players[k].Deaths) / (float64(r)) / AVERAGE_SPR
+		survivalRating = float64(roundTotal-p.Match.Players.Players[k].Deaths) / (float64(roundTotal)) / AverageSpr
 		// (1K + 4*2K + 9*3K + 16*4K + 25*5K)/Rounds/AverageRMK
 		multiRating = float64(p.Match.Players.Players[k].Rounds1K+
 			4*p.Match.Players.Players[k].Rounds2K+
 			9*p.Match.Players.Players[k].Rounds3K+
 			16*p.Match.Players.Players[k].Rounds4K+
-			25*p.Match.Players.Players[k].Rounds5K) / float64(r) / AVERAGE_RMK
-		var rating float64 = math.Round((killRating + 0.7*survivalRating + multiRating) / 2.7)
+			25*p.Match.Players.Players[k].Rounds5K) / float64(roundTotal) / AverageRmk
+		var rating = (killRating + 0.7*survivalRating + multiRating) / 2.7
 
 		p.Match.Players.Players[k].Rating = rating
+		p.Match.Players.Players[k].Rws /= float64(roundTotal)
 	}
 }
 
@@ -258,10 +273,15 @@ func (p *DemoParser) NewScoreBoardPlayer(player *common.Player) ScoreboardPlayer
 	if !player.IsBot {
 		name = player.Name
 	}
+	team := "A"
+	if player.Team != common.TeamCounterTerrorists {
+		team = "B"
+	}
 
 	return ScoreboardPlayer{
 		IsBot:            player.IsBot,
 		IsAMember:        player.Team == p.state.TeamA,
+		Team:             team,
 		Name:             name,
 		Rank:             0,
 		Atag:             player.ClanTag(),
@@ -448,12 +468,16 @@ func (p *DemoParser) handlerPlayerHurt(e events.PlayerHurt) {
 				panic(err)
 			}
 
-			p.Match.Players.Players[k].addDamage(e.HealthDamage, &p.Match.Players.Players[victimNum])
+			var damage = e.HealthDamage
+			if damage > e.Player.Health() {
+				damage = e.Player.Health()
+			}
+			p.Match.Players.Players[k].addDamage(damage, &p.Match.Players.Players[victimNum])
 
 			// Add damage to attackers round share for RWS.
 			// Only count attacks on the opposing team.
 			if e.Attacker.Team != e.Player.Team {
-				var dmg int = e.HealthDamage
+				var dmg = e.HealthDamage
 				// Cap damage at player health for a max total damage of 500
 				if dmg > e.Player.Health() {
 					dmg = e.Player.Health()
@@ -573,27 +597,24 @@ func (p *DemoParser) handlerScoreUpdated(e events.ScoreUpdated) {
 }
 
 func (p *DemoParser) handlerRoundEnd(e events.RoundEnd) {
-
 	if !p.state.RoundOngoing {
 		return
 	}
-
 	p.state.RoundOngoing = false
-	var rd_idx int = p.state.Round - 1
-
+	var rdIdx = p.state.Round - 1
 	// Set the winning team
-	p.Match.Rounds[rd_idx].TeamWon = e.Winner
+	p.Match.Rounds[rdIdx].TeamWon = e.Winner
 
 	if e.Winner == p.state.TeamA {
-		p.Match.Rounds[rd_idx].AWonRound = true
+		p.Match.Rounds[rdIdx].AWonRound = true
 		p.Match.General.ScoreA++
 	} else {
 		p.Match.General.ScoreB++
 	}
 
 	// Calculate RWS for the winning team
-	var winning_team_damage int
-	var shares_left float64 = 100.0
+	var winningTeamDamage int
+	var sharesLeft = 100.0
 	var winners []*common.Player
 
 	if e.Winner == common.TeamCounterTerrorists {
@@ -601,14 +622,14 @@ func (p *DemoParser) handlerRoundEnd(e events.RoundEnd) {
 		// If the CTs won due to defuse, give defuser 30 shares.
 		if e.Reason == events.RoundEndReasonBombDefused {
 			log.Debug("Bomb defusal")
-			var defuser uint64 = p.Match.Rounds[rd_idx].BombDefuser
+			var defuser = p.Match.Rounds[rdIdx].BombDefuser
 			playerNum, err := p.Match.Players.PlayerNumByID(defuser)
 			if err != nil {
 				panic(err)
 			}
 
 			p.Match.Players.Players[playerNum].Rws += 30.0
-			shares_left -= 30.0
+			sharesLeft -= 30.0
 		}
 
 		winners = p.parser.GameState().TeamCounterTerrorists().Members()
@@ -618,45 +639,74 @@ func (p *DemoParser) handlerRoundEnd(e events.RoundEnd) {
 		// If the Ts won due to bomb, give planter 30 shares.
 		if e.Reason == events.RoundEndReasonTargetBombed {
 			log.Debug("Bomb explosion")
-			var planter uint64 = p.Match.Rounds[rd_idx].BombPlanter
+			var planter = p.Match.Rounds[rdIdx].BombPlanter
 			playerNum, err := p.Match.Players.PlayerNumByID(planter)
 			if err != nil {
 				panic(err)
 			}
 
 			p.Match.Players.Players[playerNum].Rws += 30.0
-			shares_left -= 30.0
+			sharesLeft -= 30.0
 		}
 		winners = p.parser.GameState().TeamTerrorists().Members()
 	}
 
 	// Find total damage for winning team to evenly split 100 RWS
 	for _, pl := range winners {
-		winning_team_damage += p.Match.RdDamages.RdDamages.Damages[pl.SteamID64]
+		winningTeamDamage += p.Match.RdDamages.RdDamages.Damages[pl.SteamID64]
 		//log.Info("Steamid ", pl.SteamID64)
 	}
 
-	log.Debug("Win reason: ", e.Reason, " total damage: ", winning_team_damage)
-	p.Match.Rounds[rd_idx].WinReason = e.Reason
-
+	log.Debug("Win reason: ", e.Reason, " total damage: ", winningTeamDamage)
+	p.Match.Rounds[rdIdx].WinReason = e.Reason
 	// Split the rest of the shares by damage.
 	for _, pl := range winners {
-		var d int = p.Match.RdDamages.RdDamages.Damages[pl.SteamID64]
+		var d = p.Match.RdDamages.RdDamages.Damages[pl.SteamID64]
 
 		playerNum, err := p.Match.Players.PlayerNumByID(pl.SteamID64)
 		if err != nil {
 			panic(err)
 		}
 
-		var rws float64 = float64(shares_left * float64(d) / float64(winning_team_damage))
-		shares_left -= rws
+		var rws = sharesLeft * float64(d) / float64(winningTeamDamage)
+		sharesLeft -= rws
 		p.Match.Players.Players[playerNum].Rws += rws
 
 		log.Debugln(p.Match.Players.Players[playerNum].Name, " has ", rws, " this round and ", p.Match.Players.Players[playerNum].Rws, " RWS this game.")
 	}
 
+	//ct := p.parser.GameState().TeamCounterTerrorists().Members()
+	//t := p.parser.GameState().TeamTerrorists().Members()
+	//for _, pl := range ct {
+	//	var d = p.Match.RdDamages.RdDamages.Damages[pl.SteamID64]
+	//	playerNum, _ := p.Match.Players.PlayerNumByID(pl.SteamID64)
+	//	me, _ := p.Match.Players.PlayerNumByID(76561197990376443)
+	//	if me == playerNum {
+	//		log.Println(rdIdx, " - ", p.Match.Players.Players[playerNum].Name, " has ", d, " TDH this round")
+	//	}
+	//}
+	//for _, pl := range t {
+	//	var d = p.Match.RdDamages.RdDamages.Damages[pl.SteamID64]
+	//	playerNum, _ := p.Match.Players.PlayerNumByID(pl.SteamID64)
+	//	me, _ := p.Match.Players.PlayerNumByID(76561197990376443)
+	//	if me == playerNum {
+	//		log.Println(rdIdx, " - ", p.Match.Players.Players[playerNum].Name, " has ", d, " TDH this round")
+	//	}
+	//}
+
 	// Reset all round damage
 	for _, pl := range p.Match.Players.Players {
 		p.Match.RdDamages.resetDamage(pl.Steamid64)
 	}
+}
+func itemExists(arrayType interface{}, item interface{}) bool {
+	arr := reflect.ValueOf(arrayType)
+
+	for i := 0; i < arr.Len(); i++ {
+		if arr.Index(i).Interface() == item {
+			return true
+		}
+	}
+
+	return false
 }

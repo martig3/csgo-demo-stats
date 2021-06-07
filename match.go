@@ -541,6 +541,7 @@ type ScoreboardPlayer struct {
 	PlayerDamages    PlayerDamages `json:"player_damages" db:"player_damages"`
 	IsBot            bool          `json:"isbot" db:"isbot"`
 	IsAMember        bool          `json:"isamember" db:"isamember"`
+	Team             string        `json:"team" db:"team"`
 	Steamid64        uint64        `json:"steamid64" db:"steamid64"`
 	Name             string        `json:"name" db:"name"`
 	Atag             string        `json:"atag" db:"atag"`
@@ -550,7 +551,9 @@ type ScoreboardPlayer struct {
 	Deaths           int           `json:"deaths" db:"deaths"`
 	Assists          int           `json:"assists" db:"assists"`
 	Kd               float64       `json:"kd" db:"kd"`
-	Adr              int           `json:"adr" db:"adr"`
+	Adr              float64       `json:"adr" db:"adr"`
+	Kast             float64       `json:"kast" db:"kast"`
+	KastRounds       int           `json:"kastRounds" db:"kastRounds"`
 	Rws              float64       `json:"rws" db:"rws"`
 	Rating           float64       `json:"rating" db:"rating"`
 	Headshots        int           `json:"headshots" db:"headshots"`

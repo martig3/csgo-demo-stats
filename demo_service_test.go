@@ -6,22 +6,14 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	//"os"
-	"path/filepath"
 	"testing"
 )
 
 func TestParseStats(t *testing.T) {
-	log.Info("Looking for demos in: ", ".")
-	files, err := filepath.Glob("."+ "/*.dem")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, f := range files {
-		demoInfoFromDem, err := GetMatchInfoFromDisk(f)
-		assert.NoError(t, err)
-		log.Println("Parsed Match with ID: ", demoInfoFromDem.MatchID)
-		createKeyValuePairs(demoInfoFromDem.Players.Players)
-	}
+	f := "G:\\replays\\_scrimbot_backup\\2021-6-6_pug_de_overpass_60bc5197ffc453a0de48212d.dem"
+	demoInfoFromDem, err := GetMatchInfoFromDisk(f)
+	assert.NoError(t, err)
+	log.Println("Parsed Match with ID: ", demoInfoFromDem.MatchID)
 }
 
 func createKeyValuePairs(players []ScoreboardPlayer) {
