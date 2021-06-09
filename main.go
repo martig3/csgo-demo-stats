@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
+	"strings"
 )
 
 func main() {
@@ -14,17 +15,21 @@ func main() {
 	})
 	r.POST("/parse-stats", func(c *gin.Context) {
 		var bodyBytes []byte
-		if c.Request.Body != nil {
-			bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
-		} else {
-			c.AbortWithStatus(400)
-		}
-		var demoInfoFromDemo, err = GetMatchInfo(bodyBytes)
-		if err != nil {
-			c.JSON(500, err)
+		if c.Request.Body == nil {
+			c.JSON(400, "empty request body")
 			return
 		}
-		scoreboard := demoInfoFromDemo.GetScoreboard()
+		bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
+		var matchInfo, err = GetMatchInfo(bodyBytes)
+		if err != nil {
+			if strings.Contains(err.Error(), "ErrInvalidFileType") {
+				c.JSON(400, err.Error())
+				return
+			}
+			c.JSON(500, err.Error())
+			return
+		}
+		scoreboard := matchInfo.GetScoreboard()
 		c.JSON(200, scoreboard)
 	})
 	err := r.Run()
