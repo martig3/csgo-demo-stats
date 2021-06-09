@@ -22,7 +22,6 @@ func main() {
 		bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
 		_ = c.Request.Body.Close()
 		var matchInfo, err = GetMatchInfo(bodyBytes)
-		bodyBytes = nil
 		if err != nil {
 			if strings.Contains(err.Error(), "ErrInvalidFileType") {
 				c.JSON(400, err.Error())
@@ -32,6 +31,7 @@ func main() {
 			return
 		}
 		scoreboard := matchInfo.GetScoreboard()
+		bodyBytes = nil
 		c.JSON(200, scoreboard)
 	})
 	err := r.Run()
