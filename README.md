@@ -2,7 +2,7 @@
 
 > v0.1.0
 
-API is not complete, see known issues.
+API is not complete, see roadmap & known issues below.
 
 ## Description
 
