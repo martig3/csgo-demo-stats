@@ -79,7 +79,7 @@ func (p *DemoParser) Parse(demoStream []byte, m *InfoStruct) error {
 		return err
 	}
 	p.calculate()
-
+	p.parser.Close()
 	return err
 
 }
