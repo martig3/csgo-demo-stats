@@ -541,7 +541,7 @@ type ScoreboardPlayer struct {
 	PlayerDamages    PlayerDamages `json:"player_damages" db:"player_damages"`
 	IsBot            bool          `json:"isbot" db:"isbot"`
 	IsAMember        bool          `json:"isamember" db:"isamember"`
-	Team             string        `json:"team" db:"team"`
+	TeamChar         string        `json:"team" db:"team"`
 	Steamid64        uint64        `json:"steamid64" db:"steamid64"`
 	Name             string        `json:"name" db:"name"`
 	Atag             string        `json:"atag" db:"atag"`
@@ -572,6 +572,8 @@ type ScoreboardPlayer struct {
 	Rounds3K         int           `json:"rounds3k" db:"rounds3k"`
 	Rounds2K         int           `json:"rounds2k" db:"rounds2k"`
 	Rounds1K         int           `json:"rounds1k" db:"rounds1k"`
+	EffFlashes       int           `json:"effFlashes" db:"effFlashes"`
+	FlashDuration    int64         `json:"flashDuration" db:"flashDuration"`
 }
 
 // ScoreboardRound holds the information about a round in a match

@@ -67,6 +67,7 @@ func (p *DemoParser) Parse(demoStream []byte, m *InfoStruct) error {
 	p.parser.RegisterEventHandler(p.handlerBombExplode)
 	p.parser.RegisterEventHandler(p.handlerScoreUpdated)
 	p.parser.RegisterEventHandler(p.handlerWeaponFire)
+	p.parser.RegisterEventHandler(p.handlerPlayerFlashed)
 	log.Debug("registered event handlers")
 	// p.RegisterEventHandler(handlerChatMessage)
 	err = p.setGeneral()
@@ -117,6 +118,7 @@ func (p *DemoParser) ParseFromDisk(path string, m *InfoStruct) error {
 	p.parser.RegisterEventHandler(p.handlerBombExplode)
 	p.parser.RegisterEventHandler(p.handlerScoreUpdated)
 	p.parser.RegisterEventHandler(p.handlerWeaponFire)
+	p.parser.RegisterEventHandler(p.handlerPlayerFlashed)
 	// p.RegisterEventHandler(handlerChatMessage)
 
 	// Parse header and set general values
@@ -147,7 +149,7 @@ func (p *DemoParser) calculate() {
 	teamAPlayers := make([]uint64, 4)
 	teamBPlayers := make([]uint64, 4)
 	for _, player := range p.Match.Players.Players {
-		if player.Team == "A" {
+		if player.TeamChar == "A" {
 			teamAPlayers = append(teamAPlayers, player.Steamid64)
 		} else {
 			teamBPlayers = append(teamBPlayers, player.Steamid64)
@@ -163,7 +165,7 @@ func (p *DemoParser) calculate() {
 
 		var playerAdr = 0
 		for k, v := range p.Match.Players.Players[k].PlayerDamages.Damages {
-			if player.Team == "A" {
+			if player.TeamChar == "A" {
 				if itemExists(teamBPlayers, k) {
 					playerAdr += v
 				}
@@ -281,7 +283,7 @@ func (p *DemoParser) NewScoreBoardPlayer(player *common.Player) ScoreboardPlayer
 	return ScoreboardPlayer{
 		IsBot:            player.IsBot,
 		IsAMember:        player.Team == p.state.TeamA,
-		Team:             team,
+		TeamChar:         team,
 		Name:             name,
 		Rank:             0,
 		Atag:             player.ClanTag(),
@@ -507,7 +509,7 @@ func (p *DemoParser) handlerRankUpdate(e events.RankUpdate) {
 }
 
 func (p *DemoParser) handlerMatchStart(e events.MatchStart) {
-	// We will treat the team playing CT first as "Team A"
+	// We will treat the team playing CT first as "TeamChar A"
 	p.state.TeamA = common.TeamCounterTerrorists
 	p.Match.MatchValid = true
 
@@ -698,6 +700,17 @@ func (p *DemoParser) handlerRoundEnd(e events.RoundEnd) {
 	for _, pl := range p.Match.Players.Players {
 		p.Match.RdDamages.resetDamage(pl.Steamid64)
 	}
+}
+
+func (p *DemoParser) handlerPlayerFlashed(e events.PlayerFlashed) {
+	id, err := p.Match.Players.PlayerNumByID(e.Attacker.SteamID64)
+	if err != nil {
+		return
+	}
+	if e.FlashDuration().Milliseconds() >= 2000 {
+		p.Match.Players.Players[id].EffFlashes++
+	}
+	p.Match.Players.Players[id].FlashDuration += e.FlashDuration().Milliseconds()
 }
 func itemExists(arrayType interface{}, item interface{}) bool {
 	arr := reflect.ValueOf(arrayType)
