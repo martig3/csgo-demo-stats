@@ -21,6 +21,7 @@ func main() {
 		}
 		bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
 		var matchInfo, err = GetMatchInfo(bodyBytes)
+		bodyBytes = nil
 		if err != nil {
 			if strings.Contains(err.Error(), "ErrInvalidFileType") {
 				c.JSON(400, err.Error())
