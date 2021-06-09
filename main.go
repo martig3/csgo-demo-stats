@@ -20,6 +20,7 @@ func main() {
 			return
 		}
 		bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
+		_ = c.Request.Body.Close()
 		var matchInfo, err = GetMatchInfo(bodyBytes)
 		bodyBytes = nil
 		if err != nil {
