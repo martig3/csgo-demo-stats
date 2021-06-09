@@ -335,7 +335,7 @@ func (rk *RoundKill) MarshalJSON() ([]byte, error) {
 }
 
 //GetMatchInfo parses a demo file and returns a infostruct containing it's data
-func GetMatchInfo(body []byte) (*InfoStruct, error) {
+func GetMatchInfo(body *[]byte) (*InfoStruct, error) {
 	p := NewDemoParser()
 	var info InfoStruct
 	err := p.Parse(body, &info)

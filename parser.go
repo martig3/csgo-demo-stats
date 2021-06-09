@@ -45,14 +45,14 @@ type parsingState struct {
 
 // Parse starts the parsing process and fills the infostruct with values
 // gathered from the demo file
-func (p *DemoParser) Parse(demoStream []byte, m *InfoStruct) error {
+func (p *DemoParser) Parse(demoBytes *[]byte, m *InfoStruct) error {
 
 	matchID := ""
 	m.MatchID = matchID
 	// Register handlers for events we care about
 	p.Match = m
 	var err error
-	var reader = bytes.NewReader(demoStream)
+	var reader = bytes.NewReader(*demoBytes)
 	p.parser = demoinfocs.NewParser(reader)
 	defer p.parser.Close()
 
