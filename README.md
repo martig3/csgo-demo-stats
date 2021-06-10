@@ -1,6 +1,6 @@
 # demo-stats-service
 
-> v0.1.0
+> v0.2.0
 
 API is not complete, see roadmap & known issues below.
 
