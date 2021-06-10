@@ -10,9 +10,13 @@ API is not complete, see roadmap & known issues below.
 intended use case is for developers that want to quickly and easily implement CSGO statistics in their applications.
 
 ## How to Use
+### Endpoints
+|Path|Method|Body|Parameters|
+|---|---|---|---|
+|`/parse-stats`|POST|Binary `.dem` file| n/a|
+|`/parse-stats-disk`|GET| n/a|`path` - path on disk |
 
-HTTP POST to the `/parse-stats` with a `.dem` file as the body. See the environments tab in GitHub for the current
-environment.
+`/parse-stats-disk` is the recommended usage, especially for low memory environments.
 
 ## Example JSON response
 
@@ -133,8 +137,8 @@ environment.
 
 ### Fields to Implement
 
-- KAST aka "kill, assist, survived, traded"
-- HLTV 2 Rating
+- [ ] KAST aka "kill, assist, survived, traded"
+- [ ] HLTV 2 Rating
 
 ## Known Issues
 
@@ -148,6 +152,7 @@ environment.
 - Trade First Deaths: `tradefirstdeaths`
 
 ## Libraries Used
+
 - [gin-gonic](https://github.com/gin-gonic/) - web server
 - [demoinfocs-golang](https://github.com/markus-wa/demoinfocs-golang) - base library for demo parsing
 - [Lots of code taken from this repo](https://github.com/megaclan3000/megaclan3000)
