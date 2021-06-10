@@ -4,6 +4,7 @@ package main
 
 import (
 	"bytes"
+	"github.com/gin-gonic/gin"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -45,14 +46,18 @@ type parsingState struct {
 
 // Parse starts the parsing process and fills the infostruct with values
 // gathered from the demo file
-func (p *DemoParser) Parse(demoBytes *[]byte, m *InfoStruct) error {
+func (p *DemoParser) Parse(c *gin.Context, m *InfoStruct) error {
 
 	matchID := ""
 	m.MatchID = matchID
 	// Register handlers for events we care about
 	p.Match = m
 	var err error
-	var reader = bytes.NewReader(*demoBytes)
+	data, err := c.GetRawData()
+	if err != nil {
+		return err
+	}
+	var reader = bytes.NewReader(data)
 	p.parser = demoinfocs.NewParser(reader)
 	defer p.parser.Close()
 
@@ -123,13 +128,11 @@ func (p *DemoParser) ParseFromDisk(path string, m *InfoStruct) error {
 
 	// Parse header and set general values
 	err = p.setGeneral()
-
+	// Parse the demo returning errors
+	err = p.parser.ParseToEnd()
 	if err != nil {
 		return err
 	}
-
-	// Parse the demo returning errors
-	err = p.parser.ParseToEnd()
 	p.calculate()
 
 	return err

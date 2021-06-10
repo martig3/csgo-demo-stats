@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
+	"log"
 	"strings"
 )
 
@@ -14,14 +14,12 @@ func main() {
 		})
 	})
 	r.POST("/parse-stats", func(c *gin.Context) {
-		var bodyBytes []byte
+		//var bodyBytes []byte
 		if c.Request.Body == nil {
 			c.JSON(400, "empty request body")
 			return
 		}
-		bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
-		_ = c.Request.Body.Close()
-		var matchInfo, err = GetMatchInfo(&bodyBytes)
+		var matchInfo, err = GetMatchInfo(c)
 		if err != nil {
 			if strings.Contains(err.Error(), "ErrInvalidFileType") {
 				c.JSON(400, err.Error())
@@ -31,7 +29,25 @@ func main() {
 			return
 		}
 		scoreboard := matchInfo.GetScoreboard()
-		bodyBytes = nil
+		c.JSON(200, scoreboard)
+	})
+	r.GET("/parse-stats-disk", func(c *gin.Context) {
+		path := c.Query("path")
+		log.Println(path)
+		if path == "" {
+			c.JSON(400, "no path specified")
+			return
+		}
+		var matchInfo, err = GetMatchInfoFromDisk(path)
+		if err != nil {
+			if strings.Contains(err.Error(), "ErrInvalidFileType") {
+				c.JSON(400, err.Error())
+				return
+			}
+			c.JSON(500, err.Error())
+			return
+		}
+		scoreboard := matchInfo.GetScoreboard()
 		c.JSON(200, scoreboard)
 	})
 	err := r.Run()
