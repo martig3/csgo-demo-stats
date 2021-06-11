@@ -6,7 +6,7 @@ API is not complete, see roadmap & known issues below.
 
 ## Description
 
-`demo-stats-service` is a microservice for parsing CSGO demo files and returning relevant statistical data via HTTP. The
+`demo-stats-service` is a microservice for parsing CSGO demo files and returning relevant statistical data as JSON. The
 intended use case is for developers that want to quickly and easily implement CSGO statistics in their applications.
 
 ## How to Use
