@@ -39,7 +39,6 @@ func main() {
 	})
 	api.GET("/parse-stats-disk", func(c *gin.Context) {
 		path := c.Query("path")
-		log.Println(path)
 		if path == "" {
 			c.JSON(400, "no path specified")
 			return
