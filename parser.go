@@ -84,7 +84,6 @@ func (p *DemoParser) Parse(c *gin.Context, m *InfoStruct) error {
 		return err
 	}
 	p.calculate()
-	p.parser.Close()
 	return err
 
 }
