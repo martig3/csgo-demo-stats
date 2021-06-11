@@ -543,6 +543,7 @@ type ScoreboardPlayer struct {
 	IsBot            bool          `json:"isbot" db:"isbot"`
 	IsAMember        bool          `json:"isamember" db:"isamember"`
 	TeamChar         string        `json:"team" db:"team"`
+	SteamId          string        `json:"steamid" db:"steamid"`
 	Steamid64        uint64        `json:"steamid64" db:"steamid64"`
 	Name             string        `json:"name" db:"name"`
 	Atag             string        `json:"atag" db:"atag"`
