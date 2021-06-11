@@ -50,6 +50,35 @@ func main() {
 		scoreboard := matchInfo.GetScoreboard()
 		c.JSON(200, scoreboard)
 	})
+	r.POST("/parse-stats-disk", func(c *gin.Context) {
+		path := c.Query("path")
+		deleteAfterParsing := c.Query("delete")
+		log.Println(path)
+		if path == "" {
+			c.JSON(400, "no path specified")
+		}
+		if c.GetHeader("Content-Length") == "0" {
+			c.JSON(400, "empty body")
+		}
+		saveFile(path, c.Request.Body)
+		var matchInfo, err2 = GetMatchInfoFromDisk(path)
+		if err2 != nil {
+			if strings.Contains(err2.Error(), "ErrInvalidFileType") {
+				c.JSON(400, err2.Error())
+				return
+			}
+			c.JSON(500, err2.Error())
+			return
+		}
+		scoreboard := matchInfo.GetScoreboard()
+		if deleteAfterParsing == "true" || deleteAfterParsing == "" {
+			err := deleteFile(path)
+			if err != nil {
+				return
+			}
+		}
+		c.JSON(200, scoreboard)
+	})
 	err := r.Run()
 	if err != nil {
 		println(err)
