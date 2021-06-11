@@ -3,17 +3,23 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
+	"os"
 	"strings"
 )
 
 func main() {
 	r := gin.Default()
+	authUser, _ := os.LookupEnv("DEMO_STATS_USER")
+	authPass, _ := os.LookupEnv("DEMO_STATS_PASSWORD")
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
-	r.POST("/parse-stats", func(c *gin.Context) {
+	api := r.Group("/api", gin.BasicAuth(gin.Accounts{
+		authUser: authPass,
+	}))
+	api.POST("/parse-stats", func(c *gin.Context) {
 		//var bodyBytes []byte
 		if c.Request.Body == nil {
 			c.JSON(400, "empty request body")
@@ -31,7 +37,7 @@ func main() {
 		scoreboard := matchInfo.GetScoreboard()
 		c.JSON(200, scoreboard)
 	})
-	r.GET("/parse-stats-disk", func(c *gin.Context) {
+	api.GET("/parse-stats-disk", func(c *gin.Context) {
 		path := c.Query("path")
 		log.Println(path)
 		if path == "" {
@@ -50,7 +56,7 @@ func main() {
 		scoreboard := matchInfo.GetScoreboard()
 		c.JSON(200, scoreboard)
 	})
-	r.POST("/parse-stats-disk", func(c *gin.Context) {
+	api.POST("/parse-stats-disk", func(c *gin.Context) {
 		path := c.Query("path")
 		deleteAfterParsing := c.Query("delete")
 		log.Println(path)
