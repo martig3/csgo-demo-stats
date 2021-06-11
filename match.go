@@ -538,8 +538,6 @@ type RdDamages struct {
 
 // ScoreboardPlayer holds the information about the player of a match
 type ScoreboardPlayer struct {
-	WeaponStats      WeaponStats   `json:"weapon_stats" db:"weapon_stats"`
-	PlayerDamages    PlayerDamages `json:"player_damages" db:"player_damages"`
 	IsBot            bool          `json:"isbot" db:"isbot"`
 	IsAMember        bool          `json:"isamember" db:"isamember"`
 	TeamChar         string        `json:"team" db:"team"`
@@ -576,6 +574,8 @@ type ScoreboardPlayer struct {
 	Rounds1K         int           `json:"rounds1k" db:"rounds1k"`
 	EffFlashes       int           `json:"effFlashes" db:"effFlashes"`
 	FlashDuration    int64         `json:"flashDuration" db:"flashDuration"`
+	WeaponStats      WeaponStats   `json:"weapon_stats" db:"weapon_stats"`
+	PlayerDamages    PlayerDamages `json:"player_damages" db:"player_damages"`
 }
 
 // ScoreboardRound holds the information about a round in a match
