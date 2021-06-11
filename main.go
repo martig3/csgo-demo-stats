@@ -58,7 +58,6 @@ func main() {
 	api.POST("/parse-stats-disk", func(c *gin.Context) {
 		path := c.Query("path")
 		deleteAfterParsing := c.Query("delete")
-		log.Println(path)
 		if path == "" {
 			c.JSON(400, "no path specified")
 		}
