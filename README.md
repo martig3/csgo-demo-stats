@@ -13,10 +13,12 @@ intended use case is for developers that want to quickly and easily implement CS
 ### Endpoints
 |Path|Method|Body|Parameters|
 |---|---|---|---|
-|`/parse-stats`|POST|Binary `.dem` file| n/a|
-|`/parse-stats-disk`|GET| n/a|`path` - path on disk |
+|`api/parse-stats-remote`|GET| n/a|`path` - path to save on disk, `url` - remote url, `auth` - Full Authorization header|
+|`api/parse-stats-disk`|POST| Binary `.dem` file|`path` - source path on disk, `delete` - boolean for deletion after parsing |
+|`api/parse-stats-disk`|GET| n/a|`path` - source path on disk |
+|`api/parse-stats`|POST|Binary `.dem` file| n/a|
 
-`/parse-stats-disk` is the recommended usage, especially for low memory environments.
+`/parse-stats` is not generally recommended, especially for low memory environments.
 
 ## Example JSON response
 
@@ -96,6 +98,7 @@ intended use case is for developers that want to quickly and easily implement CS
       "isbot": false,
       "isamember": false,
       "team": "B",
+      "steamid": "STEAM_1:1:15055357",
       "steamid64": 76561197990376443,
       "name": "mart1g3",
       "atag": "",
