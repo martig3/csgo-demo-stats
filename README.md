@@ -16,9 +16,9 @@ intended use case is for developers that want to quickly and easily implement CS
 |`api/parse-stats-remote`|GET| n/a|`path` - path to save on disk, `url` - remote url, `auth` - Full Authorization header|
 |`api/parse-stats-disk`|POST| Binary `.dem` file|`path` - source path on disk, `delete` - boolean for deletion after parsing |
 |`api/parse-stats-disk`|GET| n/a|`path` - source path on disk |
-|`api/parse-stats`|POST|Binary `.dem` file| n/a|
+|`api/parse-stats`*|POST|Binary `.dem` file| n/a|
 
-`/parse-stats` is not generally recommended, especially for low memory environments.
+*`api/parse-stats` is not generally recommended, especially for low memory environments.
 
 ## Example JSON response
 
