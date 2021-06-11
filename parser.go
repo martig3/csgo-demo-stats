@@ -4,6 +4,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"os"
 	"path/filepath"
@@ -158,6 +159,12 @@ func (p *DemoParser) calculate() {
 		}
 	}
 	for k, player := range p.Match.Players.Players {
+		// Set Steam Id
+		authserver := (player.Steamid64 - 76561197960265728) & 1
+		authid := (player.Steamid64 - 76561197960265728 - authserver) / 2
+		steamid := ""
+		steamid = fmt.Sprintf("STEAM_1:%d:%d", authserver, authid)
+		p.Match.Players.Players[k].SteamId = steamid
 
 		// Set Kills, Deaths, Assists, MVPs
 		p.Match.Players.Players[k].Kills = p.playersBySteamID(player.Steamid64).Kills()
