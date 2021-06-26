@@ -573,6 +573,7 @@ type ScoreboardPlayer struct {
 	Rounds2K         int           `json:"rounds2k" db:"rounds2k"`
 	Rounds1K         int           `json:"rounds1k" db:"rounds1k"`
 	EffFlashes       int           `json:"effFlashes" db:"effFlashes"`
+	Efpr             float64       `json:"efpr" db:"efpr"`
 	FlashDuration    int64         `json:"flashDuration" db:"flashDuration"`
 	WeaponStats      WeaponStats   `json:"weapon_stats" db:"weapon_stats"`
 	PlayerDamages    PlayerDamages `json:"player_damages" db:"player_damages"`

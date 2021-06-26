@@ -253,6 +253,7 @@ func (p *DemoParser) calculate() {
 
 		p.Match.Players.Players[k].Rating = rating
 		p.Match.Players.Players[k].Rws /= float64(roundTotal)
+		p.Match.Players.Players[k].Efpr = float64(p.Match.Players.Players[k].EffFlashes) / float64(roundTotal)
 	}
 }
 
