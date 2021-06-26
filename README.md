@@ -6,17 +6,19 @@ API is not complete, see roadmap & known issues below.
 
 ## Description
 
-`demo-stats-service` is a microservice for parsing CSGO demo files and returning relevant statistical data via HTTP. The
+`demo-stats-service` is a microservice for parsing CSGO demo files and returning relevant statistical data as JSON. The
 intended use case is for developers that want to quickly and easily implement CSGO statistics in their applications.
 
 ## How to Use
 ### Endpoints
 |Path|Method|Body|Parameters|
 |---|---|---|---|
-|`/parse-stats`|POST|Binary `.dem` file| n/a|
-|`/parse-stats-disk`|GET| n/a|`path` - path on disk |
+|`api/parse-stats-remote`|GET| n/a|`path` - path to save on disk, `url` - remote url, `auth` - Full Authorization header|
+|`api/parse-stats-disk`|POST| Binary `.dem` file|`path` - source path on disk, `delete` - boolean for deletion after parsing |
+|`api/parse-stats-disk`|GET| n/a|`path` - source path on disk |
+|`api/parse-stats`*|POST|Binary `.dem` file| n/a|
 
-`/parse-stats-disk` is the recommended usage, especially for low memory environments.
+*`api/parse-stats` is not generally recommended, especially for low memory environments.
 
 ## Example JSON response
 
@@ -24,6 +26,42 @@ intended use case is for developers that want to quickly and easily implement CS
 {
   "players": [
     {
+      "isbot": false,
+      "isamember": false,
+      "team": "B",
+      "steamid": "STEAM_1:1:15055357",
+      "steamid64": 76561197990376443,
+      "name": "mart1g3",
+      "atag": "",
+      "rank": 0,
+      "kills": 28,
+      "mvps": 0,
+      "deaths": 14,
+      "assists": 2,
+      "kd": 2,
+      "adr": 103.04,
+      "kast": 0,
+      "kastRounds": 0,
+      "rws": 10.590703528271126,
+      "rating": 1.531787871295369,
+      "headshots": 15,
+      "hsprecent": 53.57142857142857,
+      "firstkills": 5,
+      "firstdeaths": 4,
+      "tradekills": 0,
+      "tradedeaths": 0,
+      "tradefirstkills": 0,
+      "tradefirstdeaths": 0,
+      "roundswonv5": 0,
+      "roundswonv4": 0,
+      "roundswonv3": 1,
+      "rounds5k": 0,
+      "rounds4k": 0,
+      "rounds3k": 2,
+      "rounds2k": 7,
+      "rounds1k": 8,
+      "effFlashes": 17,
+      "flashDuration": 81894,
       "weapon_stats": {
         "kills": {
           "2": 1,
@@ -92,42 +130,7 @@ intended use case is for developers that want to quickly and easily implement CS
           "76561198028320203": 479,
           "76561199020244132": 700
         }
-      },
-      "isbot": false,
-      "isamember": false,
-      "team": "B",
-      "steamid64": 76561197990376443,
-      "name": "mart1g3",
-      "atag": "",
-      "rank": 0,
-      "kills": 28,
-      "mvps": 0,
-      "deaths": 14,
-      "assists": 2,
-      "kd": 2,
-      "adr": 103.04,
-      "kast": 0,
-      "kastRounds": 0,
-      "rws": 10.590703528271126,
-      "rating": 1.531787871295369,
-      "headshots": 15,
-      "hsprecent": 53.57142857142857,
-      "firstkills": 5,
-      "firstdeaths": 4,
-      "tradekills": 0,
-      "tradedeaths": 0,
-      "tradefirstkills": 0,
-      "tradefirstdeaths": 0,
-      "roundswonv5": 0,
-      "roundswonv4": 0,
-      "roundswonv3": 1,
-      "rounds5k": 0,
-      "rounds4k": 0,
-      "rounds3k": 2,
-      "rounds2k": 7,
-      "rounds1k": 8,
-      "effFlashes": 17,
-      "flashDuration": 81894
+      }
     }
   ]
 }
