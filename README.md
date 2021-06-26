@@ -61,6 +61,7 @@ intended use case is for developers that want to quickly and easily implement CS
       "rounds2k": 7,
       "rounds1k": 8,
       "effFlashes": 17,
+      "efpr": 1.0333333333333334,
       "flashDuration": 81894,
       "weapon_stats": {
         "kills": {
