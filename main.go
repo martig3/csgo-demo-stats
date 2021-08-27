@@ -21,7 +21,6 @@ func main() {
 		authUser: authPass,
 	}))
 	api.POST("/parse-stats", func(c *gin.Context) {
-		//var bodyBytes []byte
 		if c.Request.Body == nil {
 			c.JSON(400, "empty request body")
 			return

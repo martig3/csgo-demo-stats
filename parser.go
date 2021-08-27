@@ -3,7 +3,6 @@ package main
 // https://github.com/markus-wa/demoinfocs-golang/blob/master/examples/print-events/print_events.go
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"os"
@@ -54,12 +53,7 @@ func (p *DemoParser) Parse(c *gin.Context, m *InfoStruct) error {
 	// Register handlers for events we care about
 	p.Match = m
 	var err error
-	data, err := c.GetRawData()
-	if err != nil {
-		return err
-	}
-	var reader = bytes.NewReader(data)
-	p.parser = demoinfocs.NewParser(reader)
+	p.parser = demoinfocs.NewParser(c.Request.Body)
 	defer p.parser.Close()
 
 	p.parser.RegisterEventHandler(p.handlerKill)
