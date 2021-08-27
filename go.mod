@@ -5,7 +5,7 @@ go 1.13
 
 require (
 	github.com/gin-gonic/gin v1.7.2
-	github.com/markus-wa/demoinfocs-golang/v2 v2.9.2-0.20210710125916-b3acdc8fc223
+	github.com/markus-wa/demoinfocs-golang/v2 v2.10.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
