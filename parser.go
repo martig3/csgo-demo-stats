@@ -4,7 +4,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"io"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -46,14 +46,14 @@ type parsingState struct {
 
 // Parse starts the parsing process and fills the infostruct with values
 // gathered from the demo file
-func (p *DemoParser) Parse(c *gin.Context, m *InfoStruct) error {
+func (p *DemoParser) Parse(body io.ReadCloser, m *InfoStruct) error {
 
 	matchID := ""
 	m.MatchID = matchID
 	// Register handlers for events we care about
 	p.Match = m
 	var err error
-	p.parser = demoinfocs.NewParser(c.Request.Body)
+	p.parser = demoinfocs.NewParser(body)
 	defer p.parser.Close()
 
 	p.parser.RegisterEventHandler(p.handlerKill)
