@@ -20,10 +20,8 @@ intended use case is for developers that want to quickly and easily implement CS
 
 |Path|Method|Body|Parameters|
 |---|---|---|---|
-|`api/parse-stats`*|POST|Binary `.dem` file| n/a|
-|`api/parse-stats-remote`|GET| n/a|`path` - path to save on disk, `url` - remote url, `auth` - Full Authorization header|
-|`api/parse-stats-disk`|POST| Binary `.dem` file|`path` - source path on disk, `delete` - boolean for deletion after parsing |
-|`api/parse-stats-disk`|GET| n/a|`path` - source path on disk |
+|`api/parse`|POST|Binary `.dem` file| n/a|
+|`api/parse-remote`|GET| n/a|`url` - remote url, `auth` - Full Authorization header (optional)|
 
 ## Example JSON response
 

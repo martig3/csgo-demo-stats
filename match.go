@@ -4,7 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"github.com/gin-gonic/gin"
+	"io"
 	"strconv"
 	"time"
 
@@ -336,10 +336,10 @@ func (rk *RoundKill) MarshalJSON() ([]byte, error) {
 }
 
 //GetMatchInfo parses a demo file and returns a infostruct containing it's data
-func GetMatchInfo(c *gin.Context) (*InfoStruct, error) {
+func GetMatchInfo(body io.ReadCloser) (*InfoStruct, error) {
 	p := NewDemoParser()
 	var info InfoStruct
-	err := p.Parse(c, &info)
+	err := p.Parse(body, &info)
 	return p.Match, err
 }
 
