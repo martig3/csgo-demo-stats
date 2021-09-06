@@ -23,6 +23,16 @@ intended use case is for developers that want to quickly and easily implement CS
 |`api/parse`|POST|Binary `.dem` file| n/a|
 |`api/parse-remote`|GET| n/a|`url` - remote url, `auth` - Full Authorization header (optional)|
 
+### Docker
+```bash
+sudo docker run \
+-p 8080 \ 
+-e DEMO_STATS_USER=user \ 
+-e DEMO_STATS_PASSWORD=password \
+-e PORT=8080 \
+martig3/csgo-demo-stats
+```
+
 ## Example JSON response
 
 ```json
