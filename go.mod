@@ -1,4 +1,4 @@
-module github.com/martig3/demo-service
+module github.com/martig3/csgo-demo-stats
 
 // +heroku goVersion go1.13
 go 1.13

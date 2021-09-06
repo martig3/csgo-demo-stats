@@ -1,4 +1,4 @@
-# demo-stats-service
+# csgo-demo-stats
 
 > v0.2.0
 
@@ -6,7 +6,7 @@ API is not complete, see roadmap & known issues below.
 
 ## Description
 
-`demo-stats-service` is a microservice for parsing CSGO demo files and returning relevant statistical data as JSON. The
+`csgo-demo-stats` is a microservice for parsing CSGO demo files and returning relevant statistical data as JSON. The
 intended use case is for developers that want to quickly and easily implement CSGO statistics in their applications.
 
 ## How to Use
@@ -22,6 +22,16 @@ intended use case is for developers that want to quickly and easily implement CS
 |---|---|---|---|
 |`api/parse`|POST|Binary `.dem` file| n/a|
 |`api/parse-remote`|GET| n/a|`url` - remote url, `auth` - Full Authorization header (optional)|
+
+### Docker
+```bash
+sudo docker run \
+-p 8080 \ 
+-e DEMO_STATS_USER=user \ 
+-e DEMO_STATS_PASSWORD=password \
+-e PORT=8080 \
+martig3/csgo-demo-stats
+```
 
 ## Example JSON response
 
