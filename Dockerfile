@@ -11,5 +11,5 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /go/bin/app /app
 ENTRYPOINT /app
-LABEL Name=demostatsservice Version=0.0.1
+LABEL Name=martig3/csgo-demo-stats Version=0.2.0
 EXPOSE 8080
