@@ -1,1 +1,1 @@
-web: bin/demo-service
+web: bin/csgo-demo-stats
