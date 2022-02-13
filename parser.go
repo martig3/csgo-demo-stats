@@ -21,9 +21,10 @@ import (
 
 // DemoParser holds all methods to parse a demo file into a infostruct
 type DemoParser struct {
-	parser demoinfocs.Parser
-	Match  *InfoStruct
-	state  parsingState
+	parser    demoinfocs.Parser
+	Match     *InfoStruct
+	state     parsingState
+	kastState kastPlayerCount[]
 }
 
 // NewDemoParser constructor for a new demoparser
@@ -42,6 +43,12 @@ type parsingState struct {
 	RoundOngoing bool
 	WarmupKills  []events.Kill
 	TeamA        common.Team
+}
+
+type kastPlayerCount struct {
+	steamid    string
+	kastCount  int
+	kastRounds int[]
 }
 
 // Parse starts the parsing process and fills the infostruct with values
@@ -479,6 +486,7 @@ func (p *DemoParser) handlerPlayerHurt(e events.PlayerHurt) {
 				damage = e.Player.Health()
 			}
 			p.Match.Players.Players[k].addDamage(damage, &p.Match.Players.Players[victimNum])
+			// TODO: add KAST logic here
 
 			// Add damage to attackers round share for RWS.
 			// Only count attacks on the opposing team.
@@ -622,6 +630,9 @@ func (p *DemoParser) handlerRoundEnd(e events.RoundEnd) {
 	var winningTeamDamage int
 	var sharesLeft = 100.0
 	var winners []*common.Player
+
+
+	// TODO: add KAST survived logic here
 
 	if e.Winner == common.TeamCounterTerrorists {
 		log.Debug("CounterTerrorists win")
