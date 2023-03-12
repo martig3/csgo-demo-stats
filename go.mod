@@ -4,7 +4,7 @@ module github.com/martig3/csgo-demo-stats
 go 1.13
 
 require (
-	github.com/gin-gonic/gin v1.7.2
+	github.com/gin-gonic/gin v1.7.7
 	github.com/markus-wa/demoinfocs-golang/v2 v2.10.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.6.1
